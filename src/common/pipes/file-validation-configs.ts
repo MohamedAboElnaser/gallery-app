@@ -1,11 +1,12 @@
 import { FileValidationPipe } from './file-validation.pipe';
 
-// Image validation pipe
 export class ImageValidationPipe extends FileValidationPipe {
-  // 5MB default
-  constructor(maxSize: number = 5 * 1024 * 1024) {
+  // 5MB default for images
+  // and allows up to 10 files by default
+  constructor(maxSize: number = 5 * 1024 * 1024, maxFiles: number = 10) {
     super({
       maxSize,
+      maxFiles,
       allowedMimeTypes: [
         'image/jpeg',
         'image/jpg',
@@ -18,7 +19,6 @@ export class ImageValidationPipe extends FileValidationPipe {
     });
   }
 }
-
 // Document validation pipe
 export class DocumentValidationPipe extends FileValidationPipe {
   // 5MB default for documents
