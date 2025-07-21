@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadModule } from './upload/upload.module';
 import { EventsModule } from './events/events.module';
+import { ImagesController } from './images/images.controller';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { EventsModule } from './events/events.module';
     PrismaModule,
     UploadModule,
     EventsModule,
+    ImagesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ImagesController],
   providers: [AppService, PrismaService],
 })
 export class AppModule {}
