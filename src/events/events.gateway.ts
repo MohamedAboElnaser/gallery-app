@@ -1,45 +1,68 @@
-import { OnModuleInit } from '@nestjs/common';
 import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { Injectable, Logger } from '@nestjs/common';
 
-@WebSocketGateway()
-export class EventsGateway implements OnModuleInit {
+@Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
+export class EventsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
-    console.log('EventsGateway initialized..');
-    this.server.on('connection', (socket) => {
-      console.log(`🟢Client connected with id: ${socket.id}`);
-      socket.on('disconnect', () => {
-        console.log(`🔴Client disconnected with id: ${socket.id}`);
-      });
-    });
+  private readonly logger = new Logger(EventsGateway.name);
+
+  afterInit() {
+    this.logger.log('🚀 WebSocket server initialized...');
   }
 
-  @SubscribeMessage('hi-server')
-  handelHiEvent(@MessageBody() body: any) {
-    console.log('Received hi-server event with body:', body);
-    this.server.emit('hi-client', { message: 'Hi from server!' });
+  handleConnection(client: Socket) {
+    this.logger.log(`🟢 Client connected with id : ${client.id}`);
   }
 
-  @SubscribeMessage('hello')
-  handleHelloEvent(
+  handleDisconnect(client: Socket) {
+    this.logger.log(`🔴 Client disconnected with id : ${client.id}`);
+  }
+
+  @SubscribeMessage('joinUploadSession')
+  handleJoinSession(
+    @MessageBody() data: { sessionId: string },
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: string,
   ) {
-    console.log(
-      'Received hello event with body:',
-      data,
-      'from client:',
-      client.id,
-    );
-    client.emit('hello-client', { message: 'Hello from server!' });
+    const roomName = `session-${data.sessionId}`;
+    client.join(roomName);
+    this.logger.log(`Client ${client.id} joined room: ${roomName}`);
+    return { event: 'joinedSession', data: { sessionId: data.sessionId } };
+  }
+
+  emitUploadProgress(sessionId: string, progress: any) {
+    const roomName = `session-${sessionId}`;
+    this.logger.log(`Emitting uploadProgress to room: ${roomName}`, progress);
+    this.server.to(roomName).emit('uploadProgress', progress);
+  }
+
+  emitFileProcessed(sessionId: string, fileData: any) {
+    const roomName = `session-${sessionId}`;
+    this.logger.log(`Emitting fileProcessed to room: ${roomName}`);
+    this.server.to(roomName).emit('fileProcessed', fileData);
+  }
+
+  emitSessionCompleted(sessionId: string, sessionData: any) {
+    const roomName = `session-${sessionId}`;
+    this.logger.log(`Emitting sessionCompleted to room: ${roomName}`);
+    this.server.to(roomName).emit('sessionCompleted', sessionData);
   }
 }
