@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaService } from './prisma/prisma.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -10,6 +9,8 @@ import { UploadModule } from './upload/upload.module';
 import { EventsModule } from './events/events.module';
 import { ImagesController } from './images/images.controller';
 import { ImagesModule } from './images/images.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -20,8 +21,12 @@ import { ImagesModule } from './images/images.module';
     UploadModule,
     EventsModule,
     ImagesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/',
+    }),
   ],
   controllers: [AppController, ImagesController],
-  providers: [AppService, PrismaService],
+  providers: [AppService],
 })
 export class AppModule {}
