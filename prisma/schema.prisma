@@ -14,8 +14,41 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  name          String?
+  password      String
+  Image         Image[]
+  UploadSession UploadSession[]
+}
+
+model Image {
+  id           Int           @id @default(autoincrement())
+  fileName     String
+  originalName String
+  fileSize     Int
+  mimeType     String
+  fileURL      String
+  publicId     String
+  uploadedAt   DateTime      @default(now())
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id])
+  sessionId    Int
+  session      UploadSession @relation(fields: [sessionId], references: [id])
+
+  @@map("images")
+}
+
+model UploadSession {
+  id             Int      @id @default(autoincrement())
+  sessionId      String   @unique
+  userId         Int
+  totalFiles     Int
+  completedFiles Int      @default(0)
+  status         String   @default("processing") // processing, completed, failed
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+  images         Image[]
+
+  @@map("upload_sessions")
 }
