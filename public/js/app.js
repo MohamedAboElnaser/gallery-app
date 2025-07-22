@@ -461,8 +461,8 @@ class GalleryApp {
     gallery.innerHTML = this.galleryData.items
       .map(
         (image) => `
-            <div class="gallery-item" onclick="app.openModal('${image.cloudinaryUrl}', '${image.originalName}', '${this.formatFileSize(image.fileSize)}', '${this.formatDate(image.uploadedAt)}')">
-                <img src="${image.cloudinaryUrl}" alt="${image.originalName}" loading="lazy">
+            <div class="gallery-item" onclick="app.openModal('${image.fileURL}', '${image.originalName}', '${this.formatFileSize(image.fileSize)}', '${this.formatDate(image.uploadedAt)}')">
+                <img src="${image.fileURL}" alt="${image.originalName}" loading="lazy">
                 <div class="gallery-item-info">
                     <div class="gallery-item-title">${image.originalName}</div>
                     <div class="gallery-item-details">
