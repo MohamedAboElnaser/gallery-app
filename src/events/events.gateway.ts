@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Injectable, Logger } from '@nestjs/common';
+import { FileData, UploadProgress, SessionData } from 'src/events/interfaces';
 
 @Injectable()
 @WebSocketGateway({
@@ -48,19 +49,19 @@ export class EventsGateway
     return { event: 'joinedSession', data: { sessionId: data.sessionId } };
   }
 
-  emitUploadProgress(sessionId: string, progress: any) {
+  emitUploadProgress(sessionId: string, progress: UploadProgress) {
     const roomName = `session-${sessionId}`;
     this.logger.log(`Emitting uploadProgress to room: ${roomName}`, progress);
     this.server.to(roomName).emit('uploadProgress', progress);
   }
 
-  emitFileProcessed(sessionId: string, fileData: any) {
+  emitFileProcessed(sessionId: string, fileData: FileData) {
     const roomName = `session-${sessionId}`;
     this.logger.log(`Emitting fileProcessed to room: ${roomName}`);
     this.server.to(roomName).emit('fileProcessed', fileData);
   }
 
-  emitSessionCompleted(sessionId: string, sessionData: any) {
+  emitSessionCompleted(sessionId: string, sessionData: SessionData) {
     const roomName = `session-${sessionId}`;
     this.logger.log(`Emitting sessionCompleted to room: ${roomName}`);
     this.server.to(roomName).emit('sessionCompleted', sessionData);
