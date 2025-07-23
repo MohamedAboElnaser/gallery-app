@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UploadService } from 'src/upload/upload.service';
 import { EventsGateway } from 'src/events/events.gateway';
 import { v4 as uuidv4 } from 'uuid';
+import { GetImagesDto } from './dto/get-images.dto';
 
 @Injectable()
 export class ImagesService {
@@ -157,5 +158,65 @@ export class ImagesService {
     const urlParts = url.split('/');
     const filename = urlParts[urlParts.length - 1];
     return filename.split('.')[0];
+  }
+  /**
+   * Get images with pagination and filtering
+   */
+  async getImages(userId: number, query: GetImagesDto) {
+    const {
+      limit = 10, // Default limit
+      cursor,
+      sortBy = 'uploadedAt', // Default sort by uploadedAt
+      order = 'desc',
+      search,
+    } = query;
+
+    const where: any = { userId };
+
+    if (search) {
+      where.OR = [
+        { fileName: { contains: search, mode: 'insensitive' } },
+        { originalName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Handle cursor for forward pagination
+    if (cursor) {
+      const cursorId = parseInt(cursor);
+      // For forward pagination: if order is desc, get records with id < cursor
+      // if order is asc, get records with id > cursor
+      where.id = order === 'desc' ? { lt: cursorId } : { gt: cursorId };
+    }
+
+    const images = await this.prisma.image.findMany({
+      where,
+      take: limit + 1, // Take one extra to check if there's a next page
+      orderBy: {
+        [sortBy]: order,
+      },
+      select: {
+        id: true,
+        fileName: true,
+        originalName: true,
+        fileSize: true,
+        mimeType: true,
+        fileURL: true,
+        uploadedAt: true,
+      },
+    });
+
+    // Check if there are more pages
+    const hasNextPage = images.length > limit;
+    const items = hasNextPage ? images.slice(0, -1) : images;
+
+    // Get the cursor for the next page (last item's id)
+    const nextCursor =
+      items.length > 0 ? items[items.length - 1].id.toString() : null;
+
+    return {
+      items,
+      hasNextPage,
+      nextCursor,
+    };
   }
 }
