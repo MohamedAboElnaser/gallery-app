@@ -277,7 +277,7 @@ class GalleryApp {
     this.initializeProgress();
 
     try {
-      const response = await fetch('/images/upload', {
+      const response = await fetch('/images', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.token}`,
