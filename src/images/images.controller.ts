@@ -8,12 +8,15 @@ import {
   Body,
   ValidationPipe,
   UsePipes,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/common/pipes';
 import { ImagesService } from './images.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UploadImagesDto } from './dto/upload-images.dto';
+import { GetImagesDto } from './dto/get-images.dto';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('images')
@@ -21,7 +24,7 @@ import { UploadImagesDto } from './dto/upload-images.dto';
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
-  @Post('upload')
+  @Post()
   @UseInterceptors(FilesInterceptor('images'))
   async uploadImages(
     @UploadedFiles(
@@ -39,5 +42,10 @@ export class ImagesController {
       req.user.sub,
       uploadDto?.sessionId,
     );
+  }
+
+  @Get()
+  async getImages(@Query() query: GetImagesDto, @Request() req: any) {
+    return await this.imagesService.getImages(req.user.sub, query);
   }
 }
