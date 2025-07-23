@@ -101,7 +101,7 @@ class GalleryApp {
       const data = await response.json();
 
       if (response.ok) {
-        this.token = data.access_token;
+        this.token = data.token;
         localStorage.setItem('token', this.token);
         this.showToast('Login successful!', 'success');
         this.showMainContent();
