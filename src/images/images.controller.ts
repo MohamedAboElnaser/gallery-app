@@ -3,29 +3,41 @@ import {
   Post,
   UploadedFiles,
   UseInterceptors,
+  UseGuards,
+  Request,
+  Body,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/common/pipes';
+import { ImagesService } from './images.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UploadImagesDto } from './dto/upload-images.dto';
 
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('images')
+@UseGuards(JwtAuthGuard)
 export class ImagesController {
-  @Post('multiple-images')
+  constructor(private readonly imagesService: ImagesService) {}
+
+  @Post('upload')
   @UseInterceptors(FilesInterceptor('images'))
-  uploadMultipleImages(
-    @UploadedFiles(new ImageValidationPipe(5149, 10))
+  async uploadImages(
+    @UploadedFiles(
+      new ImageValidationPipe(
+        +process.env.MAX_FILE_SIZE,
+        +process.env.MAX_FILE_COUNT_PER_REQUEST,
+      ),
+    )
     files: Express.Multer.File[],
+    @Body() uploadDto: UploadImagesDto,
+    @Request() req: any,
   ) {
-    console.log('Files received:', files);
-    // Here you can handle the files, e.g., save them to a database or cloud
-    // For demonstration, we will just return the files information
-    return {
-      message: 'Images uploaded successfully',
-      totalFiles: files.length,
-      files: files.map((file) => ({
-        originalName: file.originalname,
-        size: file.size,
-        mimetype: file.mimetype,
-      })),
-    };
+    return this.imagesService.uploadImages(
+      files,
+      req.user.sub,
+      uploadDto?.sessionId,
+    );
   }
 }
