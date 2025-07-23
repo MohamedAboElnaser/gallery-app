@@ -48,7 +48,7 @@ export class ImagesService {
       );
     });
 
-    await Promise.all(uploadPromises);
+    const images = await Promise.all(uploadPromises);
 
     // Mark session as completed
     await this.prisma.uploadSession.update({
@@ -62,7 +62,7 @@ export class ImagesService {
       status: 'completed',
     });
 
-    return { sessionId: uploadSessionId, totalFiles: files.length };
+    return { sessionId: uploadSessionId, totalFiles: files.length, images };
   }
 
   private async processFileWithProgress(
