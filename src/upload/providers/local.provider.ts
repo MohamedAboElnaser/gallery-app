@@ -11,7 +11,7 @@ const access = promisify(fs.access);
 
 @Injectable()
 export class LocalStorageProvider implements StorageProvider {
-  private readonly uploadPath = path.join(process.cwd(), 'uploads');
+  private readonly uploadPath = process.env.LOCAL_UPLOAD_PATH;
 
   async uploadFile(
     file: Express.Multer.File,
