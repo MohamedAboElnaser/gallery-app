@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from '../interfaces/storage-provider.interface';
 import { CloudinaryStorageProvider } from '../providers/cloudinary.provider';
+import { LocalStorageProvider } from '../providers/local.provider';
 
 export type StorageProviderType = 'cloudinary' | 's3' | 'local' | 'supabase';
 
@@ -13,6 +14,8 @@ export class StorageProviderFactory {
     switch (type) {
       case 'cloudinary':
         return new CloudinaryStorageProvider(this.configService);
+      case 'local':
+        return new LocalStorageProvider();
       // Add other providers here when implemented
       default:
         return new CloudinaryStorageProvider(this.configService); // Default to Cloudinary for now
