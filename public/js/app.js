@@ -26,8 +26,16 @@ class GalleryApp {
 
     // Drag and drop
     const uploadArea = document.getElementById('uploadArea');
-    uploadArea.addEventListener('click', () => {
-      document.getElementById('fileInput').click();
+
+    // Use event delegation for click events
+    uploadArea.addEventListener('click', (e) => {
+      // Check if clicked element is a button with chooseFilesBtn id or the upload area itself
+      if (
+        e.target.id === 'chooseFilesBtn' ||
+        e.target.closest('.upload-content')
+      ) {
+        document.getElementById('fileInput').click();
+      }
     });
 
     uploadArea.addEventListener('dragover', (e) => {
@@ -54,7 +62,6 @@ class GalleryApp {
       }, 500);
     });
   }
-
   checkAuth() {
     if (this.token) {
       this.showMainContent();
@@ -243,14 +250,21 @@ class GalleryApp {
     const uploadArea = document.getElementById('uploadArea');
     if (this.selectedFiles.length > 0) {
       uploadArea.innerHTML = `
-                <div class="upload-content">
-                    <div class="upload-icon">📁</div>
-                    <p>${this.selectedFiles.length} files selected</p>
-                    <button onclick="document.getElementById('fileInput').click()">
-                        Choose Different Files
-                    </button>
-                </div>
-            `;
+      <div class="upload-content">
+        <div class="upload-icon">📁</div>
+        <p>${this.selectedFiles.length} files selected</p>
+        <button id="chooseFilesBtn">
+          Choose Different Files
+        </button>
+      </div>
+    `;
+
+      // Re-attach click event to the new button
+      document
+        .getElementById('chooseFilesBtn')
+        .addEventListener('click', () => {
+          document.getElementById('fileInput').click();
+        });
     }
   }
 
@@ -372,27 +386,36 @@ class GalleryApp {
       `Upload completed! ${data.totalFiles} files processed.`,
       'success',
     );
+    // Immediately refresh gallery to show new images
+    this.loadImages(); // Refresh gallery
 
     // Reset upload form
     setTimeout(() => {
       this.hideProgressSection();
       this.resetUploadForm();
-      this.loadImages(); // Refresh gallery
     }, 2000);
   }
 
   resetUploadForm() {
     this.selectedFiles = [];
     document.getElementById('fileInput').value = '';
-    document.getElementById('uploadArea').innerHTML = `
-            <div class="upload-content">
-                <div class="upload-icon">📁</div>
-                <p>Drag & drop images here or click to browse</p>
-                <button onclick="document.getElementById('fileInput').click()">
-                    Choose Files
-                </button>
-            </div>
-        `;
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.innerHTML = `
+    <div class="upload-content">
+      <div class="upload-icon">📁</div>
+      <p>Drag & drop images here or click to browse</p>
+      <button id="chooseFilesBtn">
+        Choose Files
+      </button>
+    </div>
+  `;
+
+    // Re-attach click event to the new button
+    document.getElementById('chooseFilesBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
     this.updateUploadButton();
   }
 
@@ -406,7 +429,7 @@ class GalleryApp {
     document.getElementById('loadingIndicator').classList.remove('hidden');
 
     const params = new URLSearchParams();
-    params.append('limit', '12');
+    params.append('limit', '8');
 
     if (this.galleryData.nextCursor) {
       params.append('cursor', this.galleryData.nextCursor);
@@ -578,6 +601,10 @@ function loadMoreImages() {
 
 function searchImages() {
   app.searchImages();
+}
+
+function loadImages() {
+  app.loadImages();
 }
 
 function closeModal() {

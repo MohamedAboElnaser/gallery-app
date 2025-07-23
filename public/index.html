@@ -57,6 +57,15 @@
       </header>
 
       <main id="mainContent" class="hidden">
+        <!-- Hidden file input -->
+        <input
+          type="file"
+          id="fileInput"
+          multiple
+          accept="image/*"
+          style="display: none"
+        />
+
         <!-- Upload Section -->
         <section class="upload-section">
           <h2>Upload Images</h2>
@@ -64,16 +73,7 @@
             <div class="upload-content">
               <div class="upload-icon">📁</div>
               <p>Drag & drop images here or click to browse</p>
-              <input
-                type="file"
-                id="fileInput"
-                multiple
-                accept="image/*"
-                hidden
-              />
-              <button onclick="document.getElementById('fileInput').click()">
-                Choose Files
-              </button>
+              <button id="chooseFilesBtn">Choose Files</button>
             </div>
           </div>
           <button id="uploadBtn" onclick="uploadImages()" disabled>
