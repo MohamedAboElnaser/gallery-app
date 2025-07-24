@@ -88,6 +88,7 @@
         </section>
 
         <!-- Gallery Section -->
+
         <section class="gallery-section">
           <div class="gallery-header">
             <h2>My Gallery</h2>
@@ -106,6 +107,27 @@
                 <option value="fileSize-desc">Largest First</option>
                 <option value="fileSize-asc">Smallest First</option>
               </select>
+            </div>
+          </div>
+
+          <!-- bulk delete controls -->
+          <div id="bulkDeleteControls" class="bulk-delete-controls">
+            <div class="selected-count">
+              <span id="selectedCount">0</span> images selected
+            </div>
+            <div class="bulk-actions">
+              <button
+                class="delete-selected-btn"
+                onclick="app.deleteSelectedImages()"
+              >
+                Delete Selected
+              </button>
+              <button
+                class="cancel-selection-btn"
+                onclick="app.cancelSelection()"
+              >
+                Cancel
+              </button>
             </div>
           </div>
 

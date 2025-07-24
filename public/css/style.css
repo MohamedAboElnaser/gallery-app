@@ -281,7 +281,120 @@ h1 {
   transition: all 0.3s ease;
   cursor: pointer;
 }
+/* ...existing code... */
 
+/* Add these new styles for delete functionality */
+.gallery-item {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 0 0 0 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gallery-item:hover .image-overlay {
+  opacity: 1;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.delete-btn:hover {
+  transform: scale(1.2);
+  color: #ff6b6b;
+}
+
+/* Bulk delete controls */
+.bulk-delete-controls {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bulk-delete-controls.show {
+  display: flex;
+}
+
+.selected-count {
+  color: #856404;
+  font-weight: 600;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.bulk-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.delete-selected-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-selected-btn:hover {
+  background: #c82333;
+}
+
+.cancel-selection-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.cancel-selection-btn:hover {
+  background: #5a6268;
+}
+
+.gallery-item.selected {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 3px #007bff;
+}
+
+/* ...existing code... */
 .gallery-item:hover {
   transform: translateY(-8px);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);

@@ -4,6 +4,7 @@ class GalleryApp {
     this.socket = null;
     this.currentSessionId = null;
     this.selectedFiles = [];
+    this.selectedImages = [];
     this.galleryData = {
       items: [],
       hasNextPage: false,
@@ -484,17 +485,24 @@ class GalleryApp {
     gallery.innerHTML = this.galleryData.items
       .map(
         (image) => `
-            <div class="gallery-item" onclick="app.openModal('${image.fileURL}', '${image.originalName}', '${this.formatFileSize(image.fileSize)}', '${this.formatDate(image.uploadedAt)}')">
-                <img src="${image.fileURL}" alt="${image.originalName}" loading="lazy">
-                <div class="gallery-item-info">
-                    <div class="gallery-item-title">${image.originalName}</div>
-                    <div class="gallery-item-details">
-                        <span>${this.formatFileSize(image.fileSize)}</span>
-                        <span>${this.formatDate(image.uploadedAt)}</span>
-                    </div>
-                </div>
+        <div class="gallery-item" data-image-id="${image.id}">
+          <div class="image-container">
+            <img src="${image.fileURL}" alt="${image.originalName}" loading="lazy" onclick="app.openModal('${image.fileURL}', '${image.originalName}', '${this.formatFileSize(image.fileSize)}', '${this.formatDate(image.uploadedAt)}')">
+            <div class="image-overlay">
+              <button class="delete-btn" onclick="app.selectImageForDeletion('${image.id}', event)" title="Delete Image">
+                🗑️
+              </button>
             </div>
-        `,
+          </div>
+          <div class="gallery-item-info">
+            <div class="gallery-item-title">${image.originalName}</div>
+            <div class="gallery-item-details">
+              <span>${this.formatFileSize(image.fileSize)}</span>
+              <span>${this.formatDate(image.uploadedAt)}</span>
+            </div>
+          </div>
+        </div>
+      `,
       )
       .join('');
   }
@@ -565,6 +573,95 @@ class GalleryApp {
     setTimeout(() => {
       toast.remove();
     }, 4000);
+  }
+
+  selectImageForDeletion(imageId, event) {
+    event.stopPropagation(); // Prevent opening modal
+
+    const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+
+    if (this.selectedImages.includes(imageId)) {
+      // Deselect
+      this.selectedImages = this.selectedImages.filter((id) => id !== imageId);
+      imageElement.classList.remove('selected');
+    } else {
+      // Select
+      this.selectedImages.push(imageId);
+      imageElement.classList.add('selected');
+    }
+
+    this.updateBulkDeleteControls();
+  }
+
+  updateBulkDeleteControls() {
+    const bulkControls = document.getElementById('bulkDeleteControls');
+    const selectedCount = document.getElementById('selectedCount');
+
+    selectedCount.textContent = this.selectedImages.length;
+
+    if (this.selectedImages.length > 0) {
+      bulkControls.classList.add('show');
+    } else {
+      bulkControls.classList.remove('show');
+    }
+  }
+
+  cancelSelection() {
+    this.selectedImages = [];
+    document.querySelectorAll('.gallery-item.selected').forEach((item) => {
+      item.classList.remove('selected');
+    });
+    this.updateBulkDeleteControls();
+  }
+
+  async deleteSelectedImages() {
+    if (this.selectedImages.length === 0) {
+      this.showToast('No images selected for deletion', 'error');
+      return;
+    }
+
+    const confirmDelete = confirm(
+      `Are you sure you want to delete ${this.selectedImages.length} image(s)? This action cannot be undone.`,
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch('/images/bulk-delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.token}`,
+        },
+        body: JSON.stringify({
+          imageIds: this.selectedImages,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        this.showToast(
+          `${result.deletedCount} image(s) deleted successfully!`,
+          'success',
+        );
+
+        // Remove deleted images from gallery data
+        this.galleryData.items = this.galleryData.items.filter(
+          (item) => !this.selectedImages.includes(item.id),
+        );
+
+        // Clear selection and re-render gallery
+        this.cancelSelection();
+        this.renderGallery();
+        this.updateLoadMoreButton();
+      } else {
+        this.showToast(result.message || 'Failed to delete images', 'error');
+      }
+    } catch (error) {
+      this.showToast('Network error while deleting images', 'error');
+      console.error('Delete images error:', error);
+    }
   }
 }
 
