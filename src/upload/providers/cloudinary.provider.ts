@@ -79,7 +79,7 @@ export class CloudinaryStorageProvider implements StorageProvider {
       this.logger.error(
         `Failed to delete file from Cloudinary: ${error.message}`,
       );
-      return false;
+      throw error;
     }
   }
 
