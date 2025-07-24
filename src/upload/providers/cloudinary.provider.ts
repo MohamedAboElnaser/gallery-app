@@ -135,4 +135,16 @@ export class CloudinaryStorageProvider implements StorageProvider {
       throw error;
     }
   }
+
+  async deleteFiles(fileUrls: string[]): Promise<boolean[]> {
+    try {
+      const deletePromises = fileUrls.map((url) => this.deleteFile(url));
+      return Promise.all(deletePromises);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete multiple files from Cloudinary: ${error.message}`,
+      );
+      throw error;
+    }
+  }
 }

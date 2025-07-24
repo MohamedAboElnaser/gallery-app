@@ -24,7 +24,7 @@ export class LocalStorageProvider implements StorageProvider {
     // for unique filename generation
     const finalFilename =
       filename ||
-      `${file.originalname}-${Math.random().toString(36).substring(2, 15)}.${file.originalname.split('.').pop()}`;
+      `${file.originalname.split('.')[0]}-${Math.random().toString(36).substring(2, 15)}.${file.originalname.split('.').pop()}`;
     const folderPath = path.join(this.uploadPath, folder);
     const filePath = path.join(folderPath, finalFilename);
 
@@ -67,5 +67,15 @@ export class LocalStorageProvider implements StorageProvider {
       console.error(`Failed to delete file ${fileUrl}:`, error);
       return false;
     }
+  }
+
+  async deleteFiles(fileUrls: string[]): Promise<boolean[]> {
+    if (!fileUrls || fileUrls.length === 0) {
+      throw new Error('File URLs are required');
+    }
+
+    const deletePromises = fileUrls.map((fileUrl) => this.deleteFile(fileUrl));
+
+    return Promise.all(deletePromises);
   }
 }

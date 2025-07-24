@@ -10,4 +10,6 @@ export interface StorageProvider {
   uploadFiles(files: Express.Multer.File[], folder: string): Promise<string[]>;
 
   deleteFile(fileUrl: string): Promise<boolean>;
+
+  deleteFiles(fileUrls: string[]): Promise<boolean[]>;
 }
