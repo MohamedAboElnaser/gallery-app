@@ -646,9 +646,12 @@ class GalleryApp {
           'success',
         );
 
+        // Convert both to strings for consistent comparison
+        const deletedIds = this.selectedImages.map((id) => String(id));
+
         // Remove deleted images from gallery data
         this.galleryData.items = this.galleryData.items.filter(
-          (item) => !this.selectedImages.includes(item.id),
+          (item) => !deletedIds.includes(String(item.id)),
         );
 
         // Clear selection and re-render gallery
