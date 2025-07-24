@@ -221,22 +221,25 @@ export class ImagesService {
   }
 
   async deleteImages(ids: number[]) {
-    return await this.prisma.$transaction(async (tx) => {
-      // First, get the records that will be deleted
-      const imagesToDelete = await tx.image.findMany({
-        where: { id: { in: ids } },
-        select: {
-          fileURL: true,
-        },
-      });
-
-      // Then delete them
-      await tx.image.deleteMany({
-        where: { id: { in: ids } },
-      });
-
-      // Return the deleted records for deleting files from storage
-      return imagesToDelete;
+    // First, get the records that will be deleted
+    const imagesToDelete = await this.prisma.image.findMany({
+      where: { id: { in: ids } },
+      select: {
+        fileURL: true,
+      },
     });
+
+    // Delete files from storage
+    await this.uploadService.deleteFiles(
+      imagesToDelete.map((img) => img.fileURL),
+    );
+
+    // Then delete them from the database
+    await this.prisma.image.deleteMany({
+      where: { id: { in: ids } },
+    });
+
+    // Return the deleted records
+    return imagesToDelete;
   }
 }
