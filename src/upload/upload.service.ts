@@ -28,7 +28,7 @@ export class UploadService {
     return this.storageProvider.uploadFiles(files, folder);
   }
 
-  async deleteFile(fileUrl: string): Promise<boolean> {
-    return this.storageProvider.deleteFile(fileUrl);
+  async deleteFiles(urls: string[]): Promise<boolean[]> {
+    return await this.storageProvider.deleteFiles(urls);
   }
 }
