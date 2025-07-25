@@ -6,6 +6,12 @@ A NestJS-based image gallery application with real-time upload progress tracking
 
 This project is a full-stack gallery application built with NestJS on the backend and vanilla JavaScript on the frontend. The main focus is on demonstrating a flexible, provider-agnostic upload system with real-time feedback using WebSockets.
 
+## 🎥 Demo Video
+
+[![Demo Video](https://vumbnail.com/1104327298.jpg)](https://vimeo.com/1104327298)
+
+_Shows user registration, login, and real-time upload progress with WebSocket feedback._
+
 ## Key Features
 
 ### Backend (Main Focus)
