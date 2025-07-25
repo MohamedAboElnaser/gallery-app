@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -6,7 +6,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
   async createUser(data: RegisterDto) {
-    const user = await this.prisma.user.create({
+    //make sure that email is not used
+    let user;
+    user = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (user) throw new ConflictException('Email already exists');
+    user = await this.prisma.user.create({
       data: {
         email: data.email,
         password: data.password, // Not perfect put works
